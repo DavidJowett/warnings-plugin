@@ -1,17 +1,19 @@
 package hudson.plugins.warnings;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import java.util.GregorianCalendar;
 
 import org.junit.Test;
 
-import hudson.model.AbstractBuild;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import hudson.plugins.analysis.core.BuildHistory;
+import hudson.model.AbstractBuild;
+import hudson.model.Run;
+import hudson.plugins.analysis.core.HistoryProvider;
 import hudson.plugins.analysis.core.NullBuildHistory;
+import hudson.plugins.analysis.core.NullReferenceProvider;
 import hudson.plugins.analysis.core.ParserResult;
+import hudson.plugins.analysis.core.ReferenceProvider;
 import hudson.plugins.analysis.test.BuildResultTest;
 import hudson.plugins.analysis.util.model.AnnotationContainer;
 import hudson.plugins.analysis.util.model.DefaultAnnotationContainer;
@@ -26,16 +28,18 @@ public class WarningsResultTest extends BuildResultTest<WarningsResult> {
     private static final String ORIGINAL_FILENAME = WarningsResult.ORIGINAL_COMPILER_WARNINGS_XML;
 
     @Override
-    protected WarningsResult createBuildResult(final AbstractBuild<?, ?> build, final ParserResult project, final BuildHistory history) {
-        return createResult(build, project, history, null);
+    protected WarningsResult createBuildResult(final Run<?, ?> build, final ParserResult project,
+            final ReferenceProvider referenceProvider, final HistoryProvider historyProvider) {
+        return createResult(build, project, referenceProvider, historyProvider, null);
     }
 
-    private WarningsResult createResult(final AbstractBuild<?, ?> build, final ParserResult project, final BuildHistory history, final String group) {
-        return new WarningsResult(build, history, project, "UTF-8", group, false);
+    private WarningsResult createResult(final Run<?, ?> build, final ParserResult project,
+            final ReferenceProvider referenceProvider, final HistoryProvider historyProvider, final String group) {
+        return new WarningsResult(build, referenceProvider, historyProvider, project, "UTF-8", group, false);
     }
 
     /**
-     * Verifies that filenames are correctly parsed.
+     * Verifies that file names are correctly parsed.
      *
      * @see <a href="http://issues.jenkins-ci.org/browse/JENKINS-14570">Issue 14570</a>
      */
@@ -57,7 +61,7 @@ public class WarningsResultTest extends BuildResultTest<WarningsResult> {
     }
 
     private WarningsResult createResult(final String group) {
-        return createResult(createBuild(), new ParserResult(), new NullBuildHistory(), group);
+        return createResult(createBuild(), new ParserResult(), new NullReferenceProvider(), new NullBuildHistory(), group);
     }
 
     private void verifyFileName(final WarningsResult result, final FileChecker stub, final String expected) {
@@ -117,8 +121,8 @@ public class WarningsResultTest extends BuildResultTest<WarningsResult> {
     }
 
     private WarningsResult createResult(final ParserResult newWarnings, final AnnotationContainer oldWarnings) {
-        BuildHistory history = mock(BuildHistory.class);
-        when(history.getReferenceAnnotations()).thenReturn(oldWarnings);
+        ReferenceProvider history = mock(ReferenceProvider.class);
+        when(history.getIssues()).thenReturn(oldWarnings);
 
         return createResultUnderTest(newWarnings, history, createBuild());
     }
@@ -130,8 +134,8 @@ public class WarningsResultTest extends BuildResultTest<WarningsResult> {
         return build;
     }
 
-    private WarningsResult createResultUnderTest(final ParserResult newWarnings, final BuildHistory history, @SuppressWarnings("rawtypes") final AbstractBuild build) {
-        return new WarningsResult(build, history, newWarnings, "", null, false);
+    private WarningsResult createResultUnderTest(final ParserResult newWarnings, final ReferenceProvider history, @SuppressWarnings("rawtypes") final AbstractBuild build) {
+        return new WarningsResult(build, history, new NullBuildHistory(), newWarnings, "", null, false);
     }
 
     private WarningsResult createResult(final int numberOfFixedWarnings, final int numberOfNewWarnings) {

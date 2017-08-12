@@ -5,9 +5,10 @@ import java.io.File;
 import com.thoughtworks.xstream.XStream;
 
 import hudson.model.Run;
-import hudson.plugins.analysis.core.BuildHistory;
 import hudson.plugins.analysis.core.BuildResult;
+import hudson.plugins.analysis.core.HistoryProvider;
 import hudson.plugins.analysis.core.ParserResult;
+import hudson.plugins.analysis.core.ReferenceProvider;
 import hudson.plugins.analysis.core.ResultAction;
 import hudson.plugins.warnings.parser.ParserRegistry;
 import hudson.plugins.warnings.parser.Warning;
@@ -32,7 +33,7 @@ public class WarningsResult extends BuildResult {
      *
      * @param build
      *            the current build as owner of this action
-     * @param history
+     * @param referenceProvider
      *            the build history
      * @param result
      *            the parsed result with all annotations
@@ -41,25 +42,20 @@ public class WarningsResult extends BuildResult {
      * @param group
      *            the parser group this result belongs to
      */
-    public WarningsResult(final Run<?, ?> build, final BuildHistory history,
-                          final ParserResult result, final String defaultEncoding, final String group) {
-        this(build, history, result, defaultEncoding, group, group == null ? false : true);
+    public WarningsResult(final Run<?, ?> build, final String defaultEncoding, final ParserResult result,
+            final ReferenceProvider referenceProvider, final HistoryProvider historyProvider, final String group) {
+        this(build, referenceProvider, historyProvider, result, defaultEncoding, group, true);
     }
 
-    WarningsResult(final Run<?, ?> build, final BuildHistory history,
+    WarningsResult(final Run<?, ?> build, final ReferenceProvider referenceProvider, final HistoryProvider historyProvider,
                    final ParserResult result, final String defaultEncoding,
                    final String group, final boolean canSerialize) {
-        super(build, history, result, defaultEncoding);
+        super(build, referenceProvider, historyProvider, result, defaultEncoding);
 
         this.group = group;
         if (canSerialize) {
             serializeAnnotations(result.getAnnotations());
         }
-    }
-
-    @Override
-    protected BuildHistory createHistory(final Run<?, ?> build) {
-        return new WarningsBuildHistory(build, group, false, false);
     }
 
     @Override

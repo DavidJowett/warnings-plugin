@@ -10,7 +10,9 @@ import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.analysis.core.AbstractProjectAction;
 import hudson.plugins.analysis.core.BuildHistory;
+import hudson.plugins.analysis.core.BuildResult;
 import hudson.plugins.analysis.core.NullBuildHistory;
+import hudson.plugins.analysis.core.ResultAction;
 import hudson.plugins.analysis.graph.BuildResultGraph;
 import hudson.plugins.analysis.graph.DefaultGraphConfigurationView;
 import hudson.plugins.analysis.graph.GraphConfigurationView;
@@ -24,7 +26,7 @@ import hudson.plugins.warnings.parser.ParserRegistry;
  *
  * @author Ulli Hafner
  */
-public class WarningsProjectAction extends AbstractProjectAction<WarningsResultAction> {
+public class WarningsProjectAction extends AbstractProjectAction<ResultAction<? extends BuildResult>> {
     private final String parser;
 
     /**
@@ -95,7 +97,7 @@ public class WarningsProjectAction extends AbstractProjectAction<WarningsResultA
     }
 
     @Override
-    protected WarningsResultAction getResultAction(final Run<?, ?> lastBuild) {
+    protected ResultAction<? extends BuildResult> getResultAction(final Run<?, ?> lastBuild) {
         return createHistory(lastBuild).getResultAction((Run<?, ?>) lastBuild);
     }
 
@@ -115,8 +117,8 @@ public class WarningsProjectAction extends AbstractProjectAction<WarningsResultA
         }
     }
 
-    private WarningsBuildHistory createHistory(final Run<?, ?> build) {
-        return new WarningsBuildHistory(build, parser, false, false);
+    private BuildHistory createHistory(final Run<?, ?> build) {
+        return new BuildHistory(build, new WarningsResultSelector(parser));
     }
 }
 

@@ -14,10 +14,13 @@ import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixRun;
 import hudson.model.BuildListener;
-import hudson.model.Run;
 import hudson.plugins.analysis.core.BuildHistory;
+import hudson.plugins.analysis.core.DefaultResultSelector;
 import hudson.plugins.analysis.core.HealthDescriptor;
+import hudson.plugins.analysis.core.HistoryProvider;
 import hudson.plugins.analysis.core.ParserResult;
+import hudson.plugins.analysis.core.ReferenceFinder;
+import hudson.plugins.analysis.core.ReferenceProvider;
 import hudson.plugins.analysis.util.model.FileAnnotation;
 
 /**
@@ -114,18 +117,23 @@ public class WarningsAnnotationsAggregator extends MatrixAggregator {
         for (ParserResult result : totalsPerParser.values()) {
             totals.addProject(result);
         }
-        BuildHistory history = new BuildHistory((Run<?, ?>)build, AggregatedWarningsResultAction.class,
+        ReferenceProvider referenceProvider = ReferenceFinder.create(build, AggregatedWarningsResultAction.class,
                 usePreviousBuildAsReference, useStableBuildAsReference);
-        AggregatedWarningsResult result = new AggregatedWarningsResult(build, history, totals, defaultEncoding);
+        HistoryProvider buildHistory = new BuildHistory(build, new DefaultResultSelector(AggregatedWarningsResultAction.class));
+        AggregatedWarningsResult result = new AggregatedWarningsResult(build, referenceProvider, buildHistory, totals, defaultEncoding);
         build.addAction(new AggregatedWarningsResultAction(build, result));
     }
 
     @Override
     public boolean endBuild() throws InterruptedException, IOException {
         for (String parser : totalsPerParser.keySet()) {
-            WarningsBuildHistory history = new WarningsBuildHistory(build, parser,
+            WarningsResultSelector selector = new WarningsResultSelector(parser);
+            ReferenceProvider referenceProvider = ReferenceFinder.create(build, selector,
                     usePreviousBuildAsReference, useStableBuildAsReference);
-            WarningsResult result = new WarningsResult(build, history, totalsPerParser.get(parser), defaultEncoding, parser);
+            HistoryProvider buildHistory = new BuildHistory(build, new WarningsResultSelector(parser));
+
+            WarningsResult result = new WarningsResult(build, defaultEncoding, totalsPerParser.get(parser),
+                    referenceProvider, buildHistory, parser);
             build.addAction(new WarningsResultAction(build, healthDescriptor, result, parser));
         }
         createTotalsAction();

@@ -30,10 +30,15 @@ import hudson.model.TaskListener;
 import hudson.plugins.analysis.core.AnnotationsClassifier;
 import hudson.plugins.analysis.core.BuildHistory;
 import hudson.plugins.analysis.core.BuildResult;
+import hudson.plugins.analysis.core.DefaultResultSelector;
 import hudson.plugins.analysis.core.FilesParser;
 import hudson.plugins.analysis.core.HealthAwarePublisher;
+import hudson.plugins.analysis.core.HistoryProvider;
 import hudson.plugins.analysis.core.NullBuildHistory;
+import hudson.plugins.analysis.core.NullReferenceProvider;
 import hudson.plugins.analysis.core.ParserResult;
+import hudson.plugins.analysis.core.ReferenceFinder;
+import hudson.plugins.analysis.core.ReferenceProvider;
 import hudson.plugins.analysis.util.ModuleDetector;
 import hudson.plugins.analysis.util.NullModuleDetector;
 import hudson.plugins.analysis.util.PluginLogger;
@@ -315,9 +320,11 @@ public class WarningsPublisher extends HealthAwarePublisher implements SimpleBui
             add(totals, consoleResults);
             add(totals, fileResults);
 
-            BuildHistory history = new BuildHistory(run, AggregatedWarningsResultAction.class,
+            ReferenceProvider referenceProvider = ReferenceFinder.create(run, AggregatedWarningsResultAction.class,
                     usePreviousBuildAsReference(), useOnlyStableBuildsAsReference());
-            AggregatedWarningsResult result = new AggregatedWarningsResult(run, history, totals, getDefaultEncoding());
+            HistoryProvider buildHistory = new BuildHistory(run, new DefaultResultSelector(AggregatedWarningsResultAction.class));
+
+            AggregatedWarningsResult result = new AggregatedWarningsResult(run, referenceProvider, buildHistory, totals, getDefaultEncoding());
             run.addAction(new AggregatedWarningsResultAction(run, result));
 
             return result;
@@ -333,7 +340,8 @@ public class WarningsPublisher extends HealthAwarePublisher implements SimpleBui
     private BuildResult emptyBuildResult(final Run<?, ?> run, final PluginLogger logger, final Exception exception) {
         logger.log(exception.getMessage());
 
-        return new AggregatedWarningsResult(run, new NullBuildHistory(), new ParserResult(), getDefaultEncoding());
+        return new AggregatedWarningsResult(run, new NullReferenceProvider(), new NullBuildHistory(),
+                new ParserResult(), getDefaultEncoding());
     }
 
     private boolean hasFileParsers() {
@@ -426,12 +434,14 @@ public class WarningsPublisher extends HealthAwarePublisher implements SimpleBui
         for (FileAnnotation annotation : output.getAnnotations()) {
             annotation.setPathName(workspace.getRemote());
         }
-        WarningsBuildHistory history = new WarningsBuildHistory(run, parserName,
-                usePreviousBuildAsReference(), useOnlyStableBuildsAsReference());
 
         blame(output.getAnnotations(), run, workspace);
 
-        WarningsResult result = new WarningsResult(run, history, output, getDefaultEncoding(), parserName);
+        WarningsResultSelector selector = new WarningsResultSelector(parserName);
+        ReferenceProvider referenceProvider = ReferenceFinder.create(run, selector,
+                usePreviousBuildAsReference(), useOnlyStableBuildsAsReference());
+        BuildHistory buildHistory = new BuildHistory(run, new WarningsResultSelector(parserName));
+        WarningsResult result = new WarningsResult(run, getDefaultEncoding(), output, referenceProvider, buildHistory, parserName);
         run.addAction(new WarningsResultAction(run, this, result, parserName));
 
         return output;
