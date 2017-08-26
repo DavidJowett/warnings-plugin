@@ -1,5 +1,6 @@
 package hudson.plugins.warnings;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -9,12 +10,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import com.google.common.collect.Lists;
 
 import hudson.Extension;
-
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-
 import hudson.plugins.warnings.parser.ParserRegistry;
-
 import hudson.util.ListBoxModel;
 
 /**
@@ -22,7 +20,7 @@ import hudson.util.ListBoxModel;
  *
  * @author Ulli Hafner
  */
-public class ConsoleParser extends AbstractDescribableImpl<ConsoleParser> {
+public class ConsoleParser extends AbstractDescribableImpl<ConsoleParser> implements Serializable {
     private final String parserName;
 
     /**

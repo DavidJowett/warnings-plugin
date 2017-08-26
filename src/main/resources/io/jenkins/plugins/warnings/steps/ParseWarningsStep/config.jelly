@@ -1,0 +1,19 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+         xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:u="/util">
+
+  <j:invokeStatic var="allParsers" className="hudson.plugins.warnings.parser.ParserRegistry"
+                  method="getAvailableParsers" />
+
+  <f:entry title="${%Scan console log}" description="${%description.consoleLogParsers}">
+    <u:repeatable field="consoleParsers" />
+  </f:entry>
+
+  <f:entry title="${%Scan workspace files}" description="${%description.logFilesParsers}">
+    <u:repeatable field="parserConfigurations" />
+  </f:entry>
+
+  <u:detectModules/>
+  <u:defaultEncoding id="warnings"/>
+
+</j:jelly>

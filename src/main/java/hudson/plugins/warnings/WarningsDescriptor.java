@@ -33,7 +33,7 @@ import hudson.util.FormValidation;
 @Extension(ordinal = 100) @Symbol("warnings")
 public final class WarningsDescriptor extends PluginDescriptor implements StaplerProxy {
     /** The ID of this plug-in is used as URL. */
-    static final String PLUGIN_ID = "warnings";
+    public static final String PLUGIN_ID = "warnings";
     /** The URL of the result action. */
     static final String RESULT_URL = PluginDescriptor.createResultUrlName(PLUGIN_ID);
     /** Prefix of icons in this plug-in. */
@@ -59,6 +59,17 @@ public final class WarningsDescriptor extends PluginDescriptor implements Staple
         else {
             return PLUGIN_ID + ParserRegistry.getUrl(group) + RESULT_URL_SUFFIX;
         }
+    }
+
+    /**
+     * Returns the URL of the warning results for the specified parser.
+     *
+     * @param id
+     *            the URL id
+     * @return a unique URL
+     */
+    public static String getResultUrlFromId(final String id) {
+       return id + RESULT_URL_SUFFIX;
     }
 
     /**
@@ -137,6 +148,11 @@ public final class WarningsDescriptor extends PluginDescriptor implements Staple
     @Override
     public String getIconUrl() {
         return SMALL_ICON_URL;
+    }
+
+    @Override
+    public String getSummaryIconUrl() {
+        return LARGE_ICON_URL;
     }
 
     @SuppressWarnings("rawtypes")

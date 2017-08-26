@@ -5,6 +5,7 @@ import org.jvnet.localizer.Localizable;
 import hudson.plugins.analysis.core.AbstractHealthDescriptor;
 import hudson.plugins.analysis.core.HealthDescriptor;
 import hudson.plugins.analysis.util.model.AnnotationProvider;
+import hudson.plugins.analysis.util.model.Priority;
 
 /**
  * A health descriptor for warnings build results.
@@ -25,6 +26,12 @@ public class WarningsHealthDescriptor extends AbstractHealthDescriptor {
     public WarningsHealthDescriptor(final HealthDescriptor healthDescriptor, final Localizable name) {
         super(healthDescriptor);
         this.name = name;
+    }
+
+    public WarningsHealthDescriptor(final String healthy, final String unHealthy, final Priority minimumPriority) {
+        super(healthy, unHealthy, minimumPriority);
+
+        this.name = Messages._Warnings_ResultAction_GenericHealthReportItem();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package hudson.plugins.warnings;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,13 +13,10 @@ import com.google.common.collect.Lists;
 
 import hudson.Extension;
 import hudson.FilePath;
-
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
-
 import hudson.plugins.warnings.parser.ParserRegistry;
-
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
@@ -27,7 +25,7 @@ import hudson.util.ListBoxModel;
  *
  * @author Ulli Hafner
  */
-public class ParserConfiguration extends AbstractDescribableImpl<ParserConfiguration> {
+public class ParserConfiguration extends AbstractDescribableImpl<ParserConfiguration> implements Serializable {
     private final String pattern;
     private final String parserName;
 
