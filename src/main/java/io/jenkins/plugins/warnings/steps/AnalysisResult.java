@@ -36,7 +36,7 @@ public class AnalysisResult extends BuildResult {
         super(build, referenceProvider, buildHistory, issues, defaultEncoding);
 
         this.id = id;
-        summary = issues.getSummary(id);
+        summary = "Bla";
         displayName = issues.getDisplayName();
 
         serializeAnnotations(issues.getAnnotations());
