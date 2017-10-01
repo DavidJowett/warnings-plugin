@@ -107,7 +107,7 @@ public class WarningsProjectAction extends AbstractProjectAction<ResultAction<? 
      * @return build history
      */
     @Override
-    protected BuildHistory createBuildHistory() {
+    public BuildHistory createBuildHistory() {
         Run<?, ?> lastFinishedBuild = getLastFinishedRun();
         if (lastFinishedBuild == null) {
             return new NullBuildHistory();
