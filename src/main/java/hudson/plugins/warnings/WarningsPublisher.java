@@ -62,6 +62,10 @@ public class WarningsPublisher extends HealthAwarePublisher implements SimpleBui
     private String messagesPattern;
     /** warning categories to exclude from report */
     private String categoriesPattern;
+    /** number of warnings required to mark build as UNSTABLE -1 to disable */
+    private Integer warningsUnstableThreshold;
+    /** number of warnings required to mark build as FAILURE -1 to disable*/
+    private Integer warningsFailureThreshold;
 	
     /** File pattern and parser configurations. @since 3.19 */
     @SuppressFBWarnings("SE")
@@ -196,6 +200,28 @@ public class WarningsPublisher extends HealthAwarePublisher implements SimpleBui
     @DataBoundSetter
     public void setCategoriesPattern(final String pattern) {
         categoriesPattern = pattern;
+    }
+
+    /**
+     * Sets the number of warnings required to mark the build as unstable. Set to -1 to disable
+     * @param threshold the number of warnings
+     */
+    @DataBoundSetter
+    public void setWarningsUnstableThreshold(final int threshold) {
+        this.warningsUnstableThreshold = threshold;
+    }
+
+    public Integer getWarningsUnstableThreshold() {
+        return this.warningsUnstableThreshold;
+    }
+
+    @DataBoundSetter
+    public void setWarningsFailureThreshold(final int threshold) {
+        this.warningsFailureThreshold = threshold;
+    }
+
+    public Integer getWarningsFailureThreshold() {
+        return this.warningsFailureThreshold;
     }
 
     /**

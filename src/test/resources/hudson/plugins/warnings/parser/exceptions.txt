@@ -1,0 +1,5 @@
+Exception in thread "main" java.lang.NullPointerException: Fictitious NullPointerException
+at StackTraceExample.method111(StackTraceExample.java:15)
+at StackTraceExample.method11(StackTraceExample.java:11)
+at StackTraceExample.method1(StackTraceExample.java:7)
+at StackTraceExample.main(StackTraceExample.java:3)
